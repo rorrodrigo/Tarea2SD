@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+service ServidorMSN{
+  rpc RecibirMensaje (Usuario) returns (stream Mensaje);
+  rpc EnviarMensaje(Mensaje) returns (Ack);
+  rpc DevolverUsuarios (Usuario) returns (Usuario);
+  rpc ValidarUsuario (Usuario) returns (Ack);
+  rpc DevolverMensajes (Usuario) returns (stream Mensaje);
+  rpc Desconectarse (Usuario) returns (Ack);
+
+}
+
+message Usuario {
+  string username = 1;
+}
+
+message Mensaje {
+  string emisor = 1;
+  string receptor = 2;
+  string mensaje = 3;
+  string marcatiempo = 4;
+}
+
+message Ack{
+    string ack = 1;
+}
