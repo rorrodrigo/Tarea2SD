@@ -8,11 +8,17 @@ Indicaciones generales para correr cada actividad:
 docker-compose build\
 docker-compose up
  
- Luego ejecutar en dos terminales distintas lo siguiente:\
+ Luego para interacctuar con la consola, ejecutar en dos terminales distintas lo siguiente:
+ Para la actividad 1
+ docker attach cliente\
+ docker attach cliente_2
+ 
+ Para la actividad 2
  docker attach client\
- docker atach client_2
+ docker attach client_2
  
  y proceder en ambas actividades ingresando los nombres de usuario a utilizar.
  
- Para conectar un cliente extra, ejecutar lo siguiente en una nueva terminal:\
+ Para conectar un cliente extra en ambas actividades, ejecutar lo siguiente en una nueva terminal:\
  docker-compose run client
+ Lo que creará el container correspondiente y desplegará la consola para poder interacctuar con ella.
