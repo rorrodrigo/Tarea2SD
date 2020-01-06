@@ -15,7 +15,7 @@ class Server:
         log.close()
         while(not(self.connectStatus)):
             try:
-                self.connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+                self.connection = pika.BlockingConnection(pika.ConnectionParameters('rabbit_server'))
                 self.connectStatus = True
             except pika.exceptions.AMQPConnectionError:
                 self.connect = False
@@ -44,7 +44,7 @@ class Server:
             self.LoginCH.basic_publish(exchange='Login', routing_key = key, body = "USADO".encode())
 
     def Views_thread(self):
-        self.View = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+        self.View = pika.BlockingConnection(pika.ConnectionParameters('rabbit_server'))
         self.ViewCH = self.View.channel()
         self.ViewCH.exchange_declare(exchange='View', exchange_type='direct')
         self.viewQueue = self.ViewCH.queue_declare(queue='', exclusive=True).method.queue
@@ -69,7 +69,6 @@ class Server:
             for linea in log:
                 #id@ emisor @ receptor @ msj @ marcatemp
                 m = linea .strip().split("@")
-                print (m)
                 if(m[1] == user_name):
                     string = m[4] + "  |  " + "Mensaje enviado a "+ m[2]+" : "+ m[3]
                     mensajes.append(string)
@@ -81,7 +80,7 @@ class Server:
             self.ViewCH.basic_publish(exchange='View', routing_key = self.users[user_name], body = json.dumps(data))
 
     def Chat_thread(self):
-        self.Chat = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+        self.Chat = pika.BlockingConnection(pika.ConnectionParameters('rabbit_server'))
         self.ChatCH = self.Chat.channel()
         self.ChatCH.exchange_declare(exchange='Chat', exchange_type='direct')
         self.ChatQueue = self.ChatCH.queue_declare(queue='', exclusive=True).method.queue

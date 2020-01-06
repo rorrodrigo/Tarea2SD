@@ -13,11 +13,11 @@ class Cliente:
         self.nombre = ""
         while(not(self.connectStatus)):
             try:
-                self.connection = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+                self.connection = pika.BlockingConnection(pika.ConnectionParameters('rabbit_server'))
                 self.connectStatus = True
             except pika.exceptions.AMQPConnectionError:
                 self.connect = False
-                print ("Iniciando Servidor...")
+                print ("Conectando al Servidor...")
                 time.sleep(4)
 
         self.LoginCH = self.connection.channel()
@@ -55,7 +55,7 @@ class Cliente:
         print ("\n"+ mostrar)
 
     def Receive(self):
-        nueva = pika.BlockingConnection(pika.ConnectionParameters('localhost'))
+        nueva = pika.BlockingConnection(pika.ConnectionParameters('rabbit_server'))
         chat = nueva.channel()
         inBoxQ = chat.queue_declare(queue='', exclusive=True).method.queue
         chat.exchange_declare(exchange='Chat', exchange_type='direct')
@@ -77,7 +77,7 @@ class Cliente:
     def doSomething(self):
         Flag = True
         while Flag:
-            print ("\nAcciones disponible\n")
+            print ("\n____________________________________________________\nAcciones disponible\n")
             print("\t1 - Ver lista de usuarios conectados.")
             print("\t2 - Ver Historial de mensajes enviados")
             print("\t3 - Enviar mensaje")
