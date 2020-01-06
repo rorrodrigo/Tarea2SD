@@ -7,4 +7,3 @@ Actividad 1:
   Cualquier error generado por no cumplir alguna instruccion detendrá la ejecucion, haciendo que el username(id) quede tomado en el      
   servidor y no se pueda volver a acceder con ese id a menos de que se reinicie el servidor.
   
-Actividad 2:
