@@ -8,12 +8,15 @@ Indicaciones generales para correr cada actividad:
 docker-compose build\
 docker-compose up
  
- Luego para interacctuar con la consola, ejecutar en dos terminales distintas lo siguiente:
- Para la actividad 1
+ Luego para interacctuar con la consola, ejecutar en dos terminales distintas lo siguiente:\
+ 
+ Para la actividad 1:
+ 
  docker attach cliente\
  docker attach cliente_2
  
- Para la actividad 2
+ Para la actividad 2:
+ 
  docker attach client\
  docker attach client_2
  
