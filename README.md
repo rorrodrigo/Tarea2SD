@@ -23,5 +23,7 @@ docker-compose up
  y proceder en ambas actividades ingresando los nombres de usuario a utilizar.
  
  Para conectar un cliente extra en ambas actividades, ejecutar lo siguiente en una nueva terminal:\
+ 
  docker-compose run client
+ 
  Lo que creará el container correspondiente y desplegará la consola para poder interacctuar con ella.
