@@ -15,10 +15,11 @@ message Usuario {
 }
 
 message Mensaje {
-  string emisor = 1;
-  string receptor = 2;
-  string mensaje = 3;
-  string marcatiempo = 4;
+  string id = 1;
+  string emisor = 2;
+  string receptor = 3;
+  string mensaje = 4;
+  string marcatiempo = 5;
 }
 
 message Ack{

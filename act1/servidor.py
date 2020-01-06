@@ -12,6 +12,7 @@ class ServerMSN(msn_pb2_grpc.ServidorMSNServicer):
         self.clientes = []
         self.mensajes = {}
         self.semaforo = threading.Semaphore(1)
+        self.id = 0
 
     def DevolverUsuarios(self, request_iterator, context):
         usuarios = []
@@ -41,6 +42,8 @@ class ServerMSN(msn_pb2_grpc.ServidorMSNServicer):
         rsp = msn_pb2.Mensaje()
         if(request.username in self.mensajes):
             for mensaje in self.mensajes[request.username]:
+                print(mensaje)
+                print("listo el mensaje")
                 yield mensaje
 
     def EnviarMensaje(self,req,context):
@@ -48,20 +51,19 @@ class ServerMSN(msn_pb2_grpc.ServidorMSNServicer):
         receptor = req.receptor
         mensaje = req.mensaje
         marcatemp = req.marcatiempo
+        req.id = str(self.id)
         if(receptor in self.mensajes):
             self.mensajes[receptor].append(req)
         else:
             self.mensajes[receptor]=[]
             self.mensajes[receptor].append(req)
-        if(marcatemp == ""):
-            confirmation = msn_pb2.Ack()
-            confirmation.ack = "ack"
-            return confirmation
         self.semaforo.acquire()
         log = open("log.txt", "a")
-        log.write(emisor + "@" + receptor + "@" + mensaje + "@" + marcatemp + "\n")
+        log.write(str(self.id)+"@"+emisor + "@" + receptor + "@" + mensaje + "@" + marcatemp + "\n")
         log.close()
         self.semaforo.release()
+        print(self.mensajes)
+        self.id += 1
         confirmation = msn_pb2.Ack()
         confirmation.ack = "ack"
         return confirmation
@@ -70,14 +72,14 @@ class ServerMSN(msn_pb2_grpc.ServidorMSNServicer):
         self.semaforo.acquire()
         log = open("log.txt", "r")
         for mensaje in log:
-            #emisor @ receptor @ msj @ marcatemp
+            #id@ emisor @ receptor @ msj @ marcatemp
             m = mensaje.strip().split("@")
-            if(m[0] == request.username):
+            if(m[1] == request.username):
                 msj = msn_pb2.Mensaje()
-                msj.emisor = m[0]
-                msj.receptor = m[1]
-                msj.mensaje = m[2]
-                msj.marcatiempo = m[3]
+                msj.emisor = m[1]
+                msj.receptor = m[2]
+                msj.mensaje = m[3]
+                msj.marcatiempo = m[4]
                 yield msj
         log.close()
         self.semaforo.release()
@@ -94,8 +96,8 @@ class ServerMSN(msn_pb2_grpc.ServidorMSNServicer):
 if __name__ == '__main__':
     server = grpc.server(futures.ThreadPoolExecutor())
     msn_pb2_grpc.add_ServidorMSNServicer_to_server(ServerMSN(), server)
-    address = 'localhost'
-    port = 5010
+    address = '[::]'
+    port = 5000
     server.add_insecure_port(address + ":" + str(port))
     server.start()
 

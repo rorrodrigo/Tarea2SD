@@ -1,0 +1,59 @@
+version: "3"
+
+
+services:
+  server:
+    build:
+      context: ./
+      dockerfile: Dockerfile.servidor
+    volumes:
+      - .:/app
+    networks:
+      tareaSD:
+        ipv4_address: "172.1.1.10"
+    ports:
+      - 5000:5000
+    networks:
+      client-server:
+       ipv4_address: 172.19.18.2
+
+  client:
+    stdin_open: true
+    tty: true
+    build:
+      context: ./
+      dockerfile: Dockerfile.cliente
+    container_name: cliente
+    volumes:
+      - .:/app
+    ports:
+      - "5001:5000"
+    networks:
+      - client-server
+    depends_on:
+      - server
+
+  client_2:
+    stdin_open: true
+    tty: true
+    build:
+      context: ./
+      dockerfile: Dockerfile.cliente
+    container_name: cliente_2
+    volumes:
+      - .:/app
+    networks:
+      - client-server
+    ports:
+      - "5002:5000"
+    depends_on:
+      - server
+
+networks:
+  client-server:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+      - subnet: 172.19.18.0/24
+   

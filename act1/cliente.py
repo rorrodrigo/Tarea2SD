@@ -4,6 +4,8 @@ import sys
 import msn_pb2
 import msn_pb2_grpc
 import threading
+import time
+import queue
 from datetime import datetime
 
 class Cliente():
@@ -16,12 +18,12 @@ class Cliente():
         self.semaforo = threading.Semaphore(1)
         self.chat_flag = False
 
-        direccion = "localhost"
-        puerto = 5010
+        direccion = '172.19.18.2'
+        puerto = 5000
 
         canal = grpc.insecure_channel(direccion+":"+str(puerto))
         self.conn = msn_pb2_grpc.ServidorMSNStub(canal)
-        
+
         usuario = msn_pb2.Usuario()
         while True:
             id = input("Ingrese un nombre de usuario unico: ")
@@ -48,6 +50,8 @@ class Cliente():
         if((msj.receptor == "user") and (msj.mensaje == "0")):
             self.chat_flag = False
             return
+        elif((msj.receptor == "user") and (msj.mensaje == "nack")):
+            return
         respuesta = self.conn.EnviarMensaje(msj)
         if(respuesta.ack == "ack"):
             return
@@ -57,35 +61,36 @@ class Cliente():
             return
 
     def Input_Usuario(self):
-        while True:
-            mensaje = input()
-            if(mensaje == ""):
-                msj = msn_pb2.Mensaje()
-                msj.mensaje = "nack"
-                return msj
-            elif(mensaje == "0"):
-                msj = msn_pb2.Mensaje()
-                msj.receptor = "user"
-                msj.mensaje = "0"
-                return msj
-            m = mensaje.strip().split("@")
+        mensaje = input("")
+        if(mensaje == ""):
             msj = msn_pb2.Mensaje()
-            msj.emisor = self.emisor
-            msj.receptor = m[0]
-            msj.mensaje = m[1]
-            now = datetime.now()
-            taim = now.strftime('%d/%m/%Y %H:%M:%S')
-            msj.marcatiempo= taim
+            msj.receptor = "user"
+            msj.mensaje = "nack"
             return msj
+        elif(mensaje == "0"):
+            self.chat_flag = False
+            msj = msn_pb2.Mensaje()
+            msj.receptor = "user"
+            msj.mensaje = "0"
+            return msj
+        m = mensaje.strip().split("@")
+        msj = msn_pb2.Mensaje()
+        msj.emisor = self.emisor
+        msj.receptor = m[0]
+        msj.mensaje = m[1]
+        now = datetime.now()
+        taim = now.strftime('%d/%m/%Y %H:%M:%S')
+        msj.marcatiempo= taim
+        return msj
 
     def RecibirMensajes(self):
-        text = msn_pb2.Mensaje()
-        for text in self.conn.RecibirMensaje(self.cliente):
-            if(text in self.leidos):
+        text = self.conn.RecibirMensaje(self.cliente)
+        for msj in text:
+            if(msj in self.leidos):
                 continue
             else:
-                self.leidos.append(text)
-                print("|{}|[{}] >> {}".format(text.marcatiempo,text.emisor,text.mensaje))
+                self.leidos.append(msj)
+                print("|{}|[{}] >> {}".format(msj.marcatiempo,msj.emisor,msj.mensaje))
         return
 
     def Historial(self):
@@ -110,7 +115,7 @@ class Cliente():
                 print(members + "\n")
                 self.clientes = conectados
             elif(len(conectados)>len(self.clientes)):
-                nuevos = conectados - self.clientes 
+                nuevos = conectados - self.clientes
                 print("Se ha(n) unido al chat: ")
                 for user in nuevos:
                     members = members + user + ", "
@@ -173,7 +178,7 @@ class Cliente():
                 sys.exit()
             else:
                 print("Opcion invalida.\n")
-        
+
 
 if __name__ == '__main__':
     cliente = Cliente()
